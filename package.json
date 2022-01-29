@@ -1,0 +1,18 @@
+{
+  "name": "lsbdev-hardhat-contracts",
+  "scripts": {
+    "runContract": "npx hardhat run scripts/run.js",
+    "deployLocal": "npx hardhat run scripts/deploy.js --network localhost",
+    "deployRinkeby": "npx hardhat run scripts/deploy.js --network rinkeby"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^4.4.1",
+    "chai": "^4.3.4",
+    "dotenv": "^11.0.0",
+    "ethereum-waffle": "^3.4.0",
+    "ethers": "^5.5.2",
+    "hardhat": "^2.8.0"
+  }
+}
