@@ -17,9 +17,6 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 const walletKey = process.env.WALLET_KEY;
 const rinkebyUrl = process.env.RINKEBY_API_URL;
 
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
 module.exports = {
   defaultNetwork: "hardhat",
   solidity: {
@@ -39,14 +36,5 @@ module.exports = {
       url: rinkebyUrl,
       accounts: [walletKey],
     },
-    /* arbitrum: {
-      // mainnet: https://arb-mainnet.g.alchemy.com/v2/kHUy7OJb3mU2KguUI53fOGHxpdJpJTt5
-      url: "https://rinkeby.arbitrum.io/rpc",
-      accounts: [walletKey],
-    },
-    optimism: {
-      url: "https://opt-kovan.g.alchemy.com/v2/pVp3Tz9Rxp_iiXlRasCjmAbaanV_vL4K",
-      accounts: [walletKey],
-    }, */
   },
 };

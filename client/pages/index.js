@@ -390,44 +390,7 @@ const Home = ({
                   )}
                   <p className="text-base-content text-opacity-40">Balance</p>
                 </div>
-                <div className="flex space-x-2 flex-0">
-                  {/*<button className="btn btn-sm btn-square">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      className="inline-block w-6 h-6 stroke-current"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      ></path>
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      ></path>
-                      </svg>
-                      </button> */}
-                  <button className="btn btn-sm btn-square">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      className="inline-block w-6 h-6 stroke-current"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                <div className="flex space-x-2 flex-0"></div>
               </div>
             </div>
             <div className="shadow-lg card compact bg-base-100">
@@ -468,118 +431,6 @@ const Home = ({
                       Disconnect
                     </button>
                   )}
-                </div>
-              </div>
-            </div>
-            <div className="col-span-1 row-span-3 shadow-lg xl:col-span-2 card compact bg-base-100">
-              <div className="card-body">
-                <h2 className="my-4 text-4xl font-bold card-title">
-                  Owned NFT's
-                  <div className="ml-4 badge badge-outline badge-lg">
-                    {nfts.length}
-                  </div>
-                </h2>
-                <div className="mb-4 space-x-2 card-actions">
-                  <div className="badge badge-ghost">Ethereum</div>
-                  <div className="badge badge-ghost">
-                    {networkData.chain?.name ?? networkData.chain?.id}
-                  </div>
-                </div>
-
-                {nftsError && (
-                  <div className="alert xl:col-span-3 alert-error">
-                    <div className="flex-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        className="w-6 h-6 mx-2 stroke-current"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
-                      </svg>
-                      <label>{nftsError}</label>
-                    </div>
-                  </div>
-                )}
-                {!accountData?.address && !connectData.connected && (
-                  <div className="alert xl:col-span-3 alert-info">
-                    <div className="flex-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        className="w-6 h-6 mx-2 stroke-current"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
-                      </svg>
-                      <label>Connect wallet to see NFT's</label>
-                    </div>
-                  </div>
-                )}
-                {!nftsLoading &&
-                  !nftsError &&
-                  nfts.length === 0 &&
-                  connectData.connected && (
-                    <div className="alert xl:col-span-3 alert-info">
-                      <div className="flex-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          className="w-6 h-6 mx-2 stroke-current"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          ></path>
-                        </svg>
-                        <label>
-                          No NFT's associated with this wallet yet! Go buy some!
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 max-h-[550px] overflow-scroll">
-                  {!nftsLoading &&
-                    nfts.length > 0 &&
-                    nfts.map((nft) => {
-                      return (
-                        <NFTCard data={nft} key={`${nft.id}-${nft.token_id}`} />
-                      );
-                    })}
-                </div>
-                <div className="mt-4 alert alert-info">
-                  <div className="flex-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      className="w-6 h-6 mx-2 stroke-current"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      ></path>
-                    </svg>
-                    <label>
-                      The NFT's shown here are only fetched for ETH Mainnnet and
-                      Rinkeby Testnet
-                    </label>
-                  </div>
                 </div>
               </div>
             </div>
@@ -664,6 +515,119 @@ const Home = ({
               </div>
             </div>
             <div className="shadow-lg card compact bg-base-100"></div>
+            <div className="col-span-1 row-span-3 shadow-lg xl:col-span-3 card compact bg-base-100">
+              <div className="card-body">
+                <h2 className="my-4 text-4xl font-bold card-title">
+                  Owned NFT's
+                  <div className="ml-4 badge badge-outline badge-lg">
+                    {nfts.length}
+                  </div>
+                </h2>
+                <div className="mb-4 space-x-2 card-actions">
+                  <div className="badge badge-ghost">Ethereum</div>
+                  <div className="badge badge-ghost">
+                    {networkData.chain?.name ?? networkData.chain?.id}
+                  </div>
+                </div>
+
+                {nftsError && (
+                  <div className="alert xl:col-span-3 alert-error">
+                    <div className="flex-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="w-6 h-6 mx-2 stroke-current"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                      </svg>
+                      <label>{nftsError}</label>
+                    </div>
+                  </div>
+                )}
+                {!accountData?.address && !connectData.connected && (
+                  <div className="alert xl:col-span-3 alert-info">
+                    <div className="flex-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="w-6 h-6 mx-2 stroke-current"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                      </svg>
+                      <label>Connect wallet to see NFT's</label>
+                    </div>
+                  </div>
+                )}
+                {!nftsLoading &&
+                  !nftsError &&
+                  nfts.length === 0 &&
+                  connectData.connected && (
+                    <div className="alert xl:col-span-3 alert-info">
+                      <div className="flex-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          className="w-6 h-6 mx-2 stroke-current"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          ></path>
+                        </svg>
+                        <label>
+                          No NFT's associated with this wallet yet! Go buy some!
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 max-h-[550px] overflow-scroll">
+                  {!nftsLoading &&
+                    nfts.length > 0 &&
+                    nfts.map((nft) => {
+                      return (
+                        <NFTCard data={nft} key={`${nft.id}-${nft.token_id}`} />
+                      );
+                    })}
+                </div>
+                <div className="mt-4 alert alert-info">
+                  <div className="flex-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      className="w-6 h-6 mx-2 stroke-current"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                    <label>
+                      The NFT's shown here are only fetched for ETH Mainnnet and
+                      Rinkeby Testnet
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="shadow-lg card compact bg-base-100">
               <div className="card-body">
                 <div className="card-title">
@@ -752,47 +716,50 @@ const Home = ({
               </div>
             </div>
             <div className="shadow-lg card compact bg-base-100">
-              <div className="flex-row items-center justify-center card-body">
-                <div class="w-full shadow stats">
-                  <div class="stat">
-                    <div class="stat-figure text-green-700">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        class="inline-block w-8 h-8 stroke-current"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
-                      </svg>
+              <div className="card-body">
+                <div className="card-title">Gratuity Contract Stats</div>
+                <div className="flex-row items-center justify-center">
+                  <div class="w-full shadow stats">
+                    <div class="stat">
+                      <div class="stat-figure text-green-700">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          class="inline-block w-8 h-8 stroke-current"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <div class="stat-title">Total</div>
+                      <div class="stat-value">{totalGratuity} eth</div>
+                      <div class="stat-desc text-success">ether given</div>
                     </div>
-                    <div class="stat-title">Total</div>
-                    <div class="stat-value">{totalGratuity} eth</div>
-                    <div class="stat-desc text-success">ether given</div>
-                  </div>
-                  <div class="stat">
-                    <div class="stat-figure text-green-700">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        class="inline-block w-8 h-8 stroke-current"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                        ></path>
-                      </svg>
+                    <div class="stat">
+                      <div class="stat-figure text-green-700">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          class="inline-block w-8 h-8 stroke-current"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                          ></path>
+                        </svg>
+                      </div>
+                      <div class="stat-title">Total</div>
+                      <div class="stat-value">{gratuityItems.length}</div>
+                      <div class="stat-desc text-success">donations</div>
                     </div>
-                    <div class="stat-title">Total</div>
-                    <div class="stat-value">{gratuityItems.length}</div>
-                    <div class="stat-desc text-success">donations</div>
                   </div>
                 </div>
               </div>

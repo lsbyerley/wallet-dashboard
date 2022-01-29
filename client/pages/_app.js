@@ -50,12 +50,12 @@ function MyApp({ Component, pageProps }) {
       connectors={connectors}
       provider={provider}
     >
-      <header class="navbar mb-2 shadow-lg bg-neutral text-neutral-content">
-        <div class="flex-1 px-2 mx-2">
-          <span class="text-lg font-bold">Wallet Dashboard</span>
+      <header className="mb-2 shadow-lg navbar bg-neutral text-neutral-content">
+        <div className="flex-1 px-2 mx-2">
+          <span className="text-lg font-bold">Wallet Dashboard</span>
         </div>
-        <div class="flex-none">
-          <button class="btn btn-square btn-ghost">
+        <div className="flex-none">
+          <button className="btn btn-square btn-ghost">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="inline-block w-6 h-6 stroke-current"
