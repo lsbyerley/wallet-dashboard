@@ -20,9 +20,25 @@ import axios from "axios";
 import GratuityJSON from "../lib/abis/Gratuity.json";
 import NFTCard from "../components/NFTCard";
 
+// TODO: use updated contract config
+const contractAddressConfig = (chainId) => {
+  const config = {
+    4: {
+      name: "rinkeby",
+      address: "0x7CD8aB958f028b72D55562149BED08967E29A118",
+    },
+    80001: {
+      name: "polygon-mumbai",
+      address: "0x30d2D684f3Ec6eA6FA00f4BCDF33460e46a1F9eB",
+    },
+  };
+  return config[chainId] || false;
+};
+
 const RINKEBY_CONTRACT = "0x7CD8aB958f028b72D55562149BED08967E29A118";
+const POLYGON_MUMBAI_CONTRACT = "0x30d2D684f3Ec6eA6FA00f4BCDF33460e46a1F9eB";
 // chainIds the contract is deployed
-const contractChainIds = [4];
+const contractChainIds = [4, 80001];
 // chainIds the nft opensea api supports
 const nftChainIds = [1, 4];
 
@@ -274,7 +290,7 @@ const Home = ({
                   <Menu as="div" className="dropdown">
                     <Menu.Button
                       tabIndex="0"
-                      className="m-1 btn btn-sm"
+                      className="m-1 btn btn-sm btn-outline"
                       disabled={!connectData.connected}
                     >
                       Switch Network
@@ -435,7 +451,10 @@ const Home = ({
                     })}
 
                   {connectData.connected && (
-                    <button className="btn btn-sm" onClick={() => disconnect()}>
+                    <button
+                      className="btn btn-sm btn-outline"
+                      onClick={() => disconnect()}
+                    >
                       Disconnect
                     </button>
                   )}
@@ -713,7 +732,7 @@ const Home = ({
                   </>
                 )}
                 {!contractChainIds.includes(chainId) && (
-                  <p className="text-gray-200">
+                  <p className="text-base-content">
                     contract not deployed to the current chain
                   </p>
                 )}
@@ -757,7 +776,7 @@ const Home = ({
                   </ul>
                 )}
                 {!contractChainIds.includes(chainId) && (
-                  <p className="text-gray-200">
+                  <p className="text-base-content">
                     contract not deployed to the current chain
                   </p>
                 )}
@@ -815,7 +834,7 @@ const Home = ({
                   </div>
                 )}
                 {!contractChainIds.includes(chainId) && (
-                  <p className="text-gray-200">
+                  <p className="text-base-content">
                     contract not deployed to the current chain
                   </p>
                 )}

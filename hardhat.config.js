@@ -36,5 +36,13 @@ module.exports = {
       url: rinkebyUrl,
       accounts: [walletKey],
     },
+    mumbai: {
+      url: "https://rpc-mumbai.maticvigil.com",
+      accounts: [walletKey],
+    },
+    matic: {
+      url: "https://rpc-mainnet.maticvigil.com",
+      accounts: [walletKey],
+    },
   },
 };
