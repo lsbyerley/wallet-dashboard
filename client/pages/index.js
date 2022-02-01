@@ -10,6 +10,7 @@ import {
   useContractEvent,
   useProvider,
   useSigner,
+  useFeeData,
 } from "wagmi";
 import { Bars } from "react-loader-spinner";
 import { Menu, Transition, Switch } from "@headlessui/react";
@@ -20,8 +21,10 @@ import GratuityJSON from "../lib/abis/Gratuity.json";
 import NFTCard from "../components/NFTCard";
 
 const RINKEBY_CONTRACT = "0x7CD8aB958f028b72D55562149BED08967E29A118";
-// chainids the contract is deployed
+// chainIds the contract is deployed
 const contractChainIds = [4];
+// chainIds the nft opensea api supports
+const nftChainIds = [1, 4];
 
 const Home = ({
   chains,
@@ -33,6 +36,8 @@ const Home = ({
   const isMounted = useIsMounted();
   const [{ data: signerData, error, loading }, getSigner] = useSigner();
   const [{ data: connectData, error: connectError }, connect] = useConnect();
+  const [{ data: feeData, error: feeError, loading: feeLoading }, getFeeData] =
+    useFeeData({ formatUnits: "gwei", watch: true });
   const [
     { data: networkData, error: networkError, loading: networkLoading },
     switchNetwork,
@@ -62,6 +67,7 @@ const Home = ({
     },
     "GratuityItemGifted",
     (event) => {
+      // TODO: better handling of a gratuity item
       alert("THANK YOU FOR THE GRATUITY YOU ARE AWESOME");
       console.log("LOG: GratuityItemGifted", event);
     }
@@ -86,67 +92,42 @@ const Home = ({
   // console.log("LOG: networkData", networkData);
   // console.log("LOG: connectData", connectData);
   // console.log("LOG: balanceData", balanceData);
+  // console.log("LOG: feeData", feeData);
   // console.log("LOG: contract", contract);
 
   useEffect(() => {
-    const fetchNfts = async () => {
-      try {
-        setNftsLoading(true);
-        let url =
-          networkData.chain?.id === 4
-            ? `https://testnets-api.opensea.io/api/v1/assets?owner=${accountAddress}`
-            : `https://api.opensea.io/api/v1/assets?owner=${accountAddress}`;
-        const res = await axios.get(url);
-        if (res.status !== 200) {
-          throw Error(
-            `OpenSea request failed with status: ${res.status}. Make sure you are on mainnet.`
-          );
-        }
-        setNfts(res.data.assets);
-        setNftsLoading(false);
-      } catch (error) {
-        setNftsLoading(false);
-        if (error instanceof Error) {
-          setNftsError(error.message);
-        } else {
-          setNftsError("An unknown error occurred");
-        }
-      }
-    };
-    if (accountAddress) {
-      fetchNfts();
+    if (accountAddress && nftChainIds.includes(chainId)) {
+      fetchNfts(chainId);
     }
   }, [accountAddress]);
 
-  useEffect(() => {
-    const fetchGratuityData = async () => {
-      try {
-        console.log("LOG: gratuityItems", gratuityItems);
-        const gratuityTotal = await contract.getTotalGratuity();
-        console.log(
-          "LOG: gratuityTotal",
-          ethers.utils.formatEther(gratuityTotal)
+  const fetchNfts = async (chainId) => {
+    try {
+      setNftsLoading(true);
+      // `https://eth-mainnet.g.alchemy.com/${process.env.NEXT_PUBLIC_ALCHEMY_ID}/v1/getNFTs/?owner=${accountAddress}`
+      let url =
+        chainId === 4
+          ? `https://testnets-api.opensea.io/api/v1/assets?owner=${accountAddress}`
+          : `https://api.opensea.io/api/v1/assets?owner=${accountAddress}`;
+      const res = await axios.get(url);
+      if (res.status !== 200) {
+        throw Error(
+          `Fetching NFTS request failed with status: ${res.status}. Network may not be supported`
         );
-        setTotalGratuity(ethers.utils.formatEther(gratuityTotal));
-
-        const gratuityItems = await contract.getAllGratuityItems();
-        const items = await Promise.all(
-          gratuityItems.map(async (i) => {
-            console.log("LOG: i", i);
-            let item = {
-              amount: ethers.utils.formatEther(i.amount),
-              sender: i.sender,
-              message: i.message,
-            };
-            return item;
-          })
-        );
-        console.log("LOG: items", items);
-        setGratuityItems(items);
-      } catch (error) {
-        console.log("LOG: error gratuity data", error);
       }
-    };
+      setNfts(res.data.assets);
+      setNftsLoading(false);
+    } catch (error) {
+      setNftsLoading(false);
+      if (error instanceof Error) {
+        setNftsError(error.message);
+      } else {
+        setNftsError("An unknown error occurred");
+      }
+    }
+  };
+
+  useEffect(() => {
     if (isConnected && signerData && contractChainIds.includes(chainId)) {
       console.log("LOG: contract fetch");
       fetchGratuityData();
@@ -155,8 +136,34 @@ const Home = ({
     }
   }, [chainId, isConnected, signerData]);
 
-  const onChangeNetwork = async (e, c) => {
-    await switchNetwork(c.id);
+  const fetchGratuityData = async () => {
+    try {
+      const gratuityTotal = await contract.getTotalGratuity();
+      setTotalGratuity(ethers.utils.formatEther(gratuityTotal));
+
+      const gratuityItems = await contract.getAllGratuityItems();
+      const items = await Promise.all(
+        gratuityItems.map(async (i) => {
+          let item = {
+            amount: ethers.utils.formatEther(i.amount),
+            sender: i.sender,
+            message: i.message,
+          };
+          return item;
+        })
+      );
+      setGratuityItems(items);
+    } catch (error) {
+      setGratuityItems([]);
+      console.log("LOG: error fetching gratuity data", error);
+    }
+  };
+
+  const onChangeNetwork = async (c) => {
+    const newNetwork = await switchNetwork(c.id);
+    setNfts([]);
+    if (nftChainIds.includes(chainId)) await fetchNfts(newNetwork?.data?.id);
+    await getFeeData();
   };
 
   const copyToClipboard = async () => {
@@ -286,14 +293,15 @@ const Home = ({
                         tabIndex="0"
                         className="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52"
                       >
-                        {chains &&
+                        {switchNetwork &&
+                          chains &&
                           chains.length > 0 &&
                           chains.map((c) => {
                             return (
                               <Menu.Item
                                 key={c.id}
                                 as="li"
-                                onClick={(e) => onChangeNetwork(e, c)}
+                                onClick={() => onChangeNetwork(c)}
                               >
                                 {({ active }) => (
                                   <a className={`${active && "bg-blue-500"}`}>
@@ -514,7 +522,22 @@ const Home = ({
                 </div>
               </div>
             </div>
-            <div className="shadow-lg card compact bg-base-100"></div>
+            <div className="shadow-lg card compact bg-base-100">
+              <div className="flex-row items-center space-x-4 card-body">
+                <div className="flex-1">
+                  {feeData && (
+                    <h2 className="text-blue-300 card-title">
+                      {feeData?.formatted.gasPrice}
+                      <span className="ml-4">{"gwei"}</span>
+                    </h2>
+                  )}
+                  <p className="text-base-content text-opacity-40">
+                    Estimated Gas Fee
+                  </p>
+                </div>
+                <div className="flex space-x-2 flex-0"></div>
+              </div>
+            </div>
             <div className="col-span-1 row-span-3 shadow-lg xl:col-span-3 card compact bg-base-100">
               <div className="card-body">
                 <h2 className="my-4 text-4xl font-bold card-title">
@@ -529,7 +552,16 @@ const Home = ({
                     {networkData.chain?.name ?? networkData.chain?.id}
                   </div>
                 </div>
-
+                {nftsLoading && !nftsError && (
+                  <div className="flex items-center justify-center">
+                    <Bars
+                      heigth="100"
+                      width="100"
+                      color="grey"
+                      ariaLabel="loading-indicator"
+                    />
+                  </div>
+                )}
                 {nftsError && (
                   <div className="alert xl:col-span-3 alert-error">
                     <div className="flex-1">
@@ -633,135 +665,160 @@ const Home = ({
                 <div className="card-title">
                   Like this dashboard? Send a tip!
                 </div>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Gratuity</span>
-                  </label>
-                  <label className="input-group input-group-md">
-                    <input
-                      type="text"
-                      placeholder="0.001"
-                      className="input input-bordered input-md"
-                      onChange={(e) =>
-                        updateFormInput({
-                          ...formInput,
-                          gratuityAmount: e.target.value,
-                        })
-                      }
-                    />
-                    <span>ETH</span>
-                  </label>
-                </div>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Message</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="message"
-                    maxLength="120"
-                    className="input input-bordered input-md"
-                    onChange={(e) =>
-                      updateFormInput({
-                        ...formInput,
-                        message: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <button
-                  onClick={depositGratuity}
-                  className="mt-4 btn btn-block btn-accent"
-                  disabled={!formInput.gratuityAmount}
-                >
-                  Send Gratuity
-                </button>
+                {contractChainIds.includes(chainId) && (
+                  <>
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Gratuity</span>
+                      </label>
+                      <label className="input-group input-group-md">
+                        <input
+                          type="text"
+                          placeholder="0.001"
+                          className="input input-bordered input-md"
+                          onChange={(e) =>
+                            updateFormInput({
+                              ...formInput,
+                              gratuityAmount: e.target.value,
+                            })
+                          }
+                        />
+                        <span>ETH</span>
+                      </label>
+                    </div>
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Message</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="message"
+                        maxLength="120"
+                        className="input input-bordered input-md"
+                        onChange={(e) =>
+                          updateFormInput({
+                            ...formInput,
+                            message: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <button
+                      onClick={depositGratuity}
+                      className="mt-4 btn btn-block btn-accent"
+                      disabled={!formInput.gratuityAmount}
+                    >
+                      Send Gratuity
+                    </button>
+                  </>
+                )}
+                {!contractChainIds.includes(chainId) && (
+                  <p className="text-gray-200">
+                    contract not deployed to the current chain
+                  </p>
+                )}
               </div>
             </div>
             <div className="shadow-lg card compact bg-base-100">
               <div className="card-body">
                 <div className="card-title">Gratuity Messages</div>
-                <ul className="px-0 py-4 overflow-scroll menu bg-base-100 text-base-content text-opacity-40 rounded-box max-h-80">
-                  {gratuityItems.map((i) => {
-                    return (
-                      <li>
-                        <a
-                          href={`https://${
-                            chainId === 4 ? "rinkeby." : ""
-                          }etherscan.io/address/${i.sender}`}
-                          target="_blank"
-                          rel="noreferrer nofollow"
-                          className="px-0 py-4"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="inline-block w-5 h-5 mr-2 stroke-current"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                {contractChainIds.includes(chainId) && (
+                  <ul className="px-0 py-4 overflow-scroll menu bg-base-100 text-base-content text-opacity-40 rounded-box max-h-80">
+                    {gratuityItems.map((item, index) => {
+                      return (
+                        <li key={`gitem-${index}`}>
+                          <a
+                            href={`https://${
+                              chainId === 4 ? "rinkeby." : ""
+                            }etherscan.io/address/${item.sender}`}
+                            target="_blank"
+                            rel="noreferrer nofollow"
+                            className="px-0 py-4"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          ({i.amount}) {i.message}
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="inline-block w-5 h-5 mr-2 stroke-current"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            ({item.amount}) {item.message}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                {!contractChainIds.includes(chainId) && (
+                  <p className="text-gray-200">
+                    contract not deployed to the current chain
+                  </p>
+                )}
               </div>
             </div>
             <div className="shadow-lg card compact bg-base-100">
               <div className="card-body">
                 <div className="card-title">Gratuity Contract Stats</div>
-                <div className="flex-row items-center justify-center">
-                  <div class="w-full shadow stats">
-                    <div class="stat">
-                      <div class="stat-figure text-green-700">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          class="inline-block w-8 h-8 stroke-current"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          ></path>
-                        </svg>
+                {contractChainIds.includes(chainId) && (
+                  <div className="flex-row items-center justify-center">
+                    <div className="w-full shadow stats">
+                      <div className="stat">
+                        <div className="text-green-700 stat-figure">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            className="inline-block w-8 h-8 stroke-current"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            ></path>
+                          </svg>
+                        </div>
+                        <div className="stat-title">Total</div>
+                        <div className="stat-value">{totalGratuity} eth</div>
+                        <div className="stat-desc text-success">
+                          ether given
+                        </div>
                       </div>
-                      <div class="stat-title">Total</div>
-                      <div class="stat-value">{totalGratuity} eth</div>
-                      <div class="stat-desc text-success">ether given</div>
-                    </div>
-                    <div class="stat">
-                      <div class="stat-figure text-green-700">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          class="inline-block w-8 h-8 stroke-current"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                          ></path>
-                        </svg>
+                      <div className="stat">
+                        <div className="text-green-700 stat-figure">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            className="inline-block w-8 h-8 stroke-current"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                            ></path>
+                          </svg>
+                        </div>
+                        <div className="stat-title">Total</div>
+                        <div className="stat-value">{gratuityItems.length}</div>
+                        <div className="stat-desc text-success">donations</div>
                       </div>
-                      <div class="stat-title">Total</div>
-                      <div class="stat-value">{gratuityItems.length}</div>
-                      <div class="stat-desc text-success">donations</div>
                     </div>
                   </div>
-                </div>
+                )}
+                {!contractChainIds.includes(chainId) && (
+                  <p className="text-gray-200">
+                    contract not deployed to the current chain
+                  </p>
+                )}
               </div>
             </div>
           </div>
