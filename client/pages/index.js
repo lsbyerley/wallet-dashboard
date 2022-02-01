@@ -82,10 +82,9 @@ const Home = ({
       signerOrProvider: provider,
     },
     "GratuityItemGifted",
-    (event) => {
-      // TODO: better handling of a gratuity item
-      alert("THANK YOU FOR THE GRATUITY YOU ARE AWESOME");
+    async (event) => {
       console.log("LOG: GratuityItemGifted", event);
+      await fetchGratuityData();
     }
   );
 
@@ -98,6 +97,8 @@ const Home = ({
   });
   const [totalGratuity, setTotalGratuity] = useState(0);
   const [gratuityItems, setGratuityItems] = useState([]);
+  const [depositLoading, setDepositLoading] = useState(false);
+  const [depositError, setDepositError] = useState();
   const accountAddress = accountData?.address || null;
   const chainId = networkData?.chain?.id || null;
   const isConnected = connectData?.connected || false;
@@ -168,7 +169,8 @@ const Home = ({
           return item;
         })
       );
-      setGratuityItems(items);
+      const reversedItems = [...items].reverse();
+      setGratuityItems(reversedItems);
     } catch (error) {
       setGratuityItems([]);
       console.log("LOG: error fetching gratuity data", error);
@@ -187,15 +189,24 @@ const Home = ({
   };
 
   const depositGratuity = async () => {
-    const { gratuityAmount, message } = formInput;
-    if (!gratuityAmount || !message) return;
+    try {
+      setDepositError(false);
+      setDepositLoading(true);
+      const { gratuityAmount, message } = formInput;
+      if (!gratuityAmount || !message) return;
 
-    const amount = ethers.utils.parseUnits(gratuityAmount, "ether");
-    console.log("LOG: deposit", amount, message);
+      const amount = ethers.utils.parseUnits(gratuityAmount, "ether");
+      console.log("LOG: deposit", amount, message);
 
-    let transaction = await contract.deposit(amount, message);
-    let txn = await transaction.wait();
-    console.log("LOG: deposit complete!", txn);
+      let transaction = await contract.deposit(amount, message);
+      let txn = await transaction.wait();
+      console.log("LOG: deposit complete!", txn);
+      setDepositLoading(false);
+    } catch (error) {
+      setDepositLoading(false);
+      setDepositError(true);
+      console.log("LOG: deposit error", error);
+    }
   };
 
   return (
@@ -684,7 +695,17 @@ const Home = ({
                 <div className="card-title">
                   Like this dashboard? Send a tip!
                 </div>
-                {contractChainIds.includes(chainId) && (
+                {depositLoading && !depositError && (
+                  <div className="flex items-center justify-center mt-8">
+                    <Bars
+                      heigth="100"
+                      width="100"
+                      color="grey"
+                      ariaLabel="loading-indicator"
+                    />
+                  </div>
+                )}
+                {!depositLoading && contractChainIds.includes(chainId) && (
                   <>
                     <div className="form-control">
                       <label className="label">
@@ -742,7 +763,7 @@ const Home = ({
               <div className="card-body">
                 <div className="card-title">Gratuity Messages</div>
                 {contractChainIds.includes(chainId) && (
-                  <ul className="px-0 py-4 overflow-scroll menu bg-base-100 text-base-content text-opacity-40 rounded-box max-h-80">
+                  <ul className="px-0 py-4 overflow-scroll menu bg-base-100 text-base-content text-opacity-40 rounded-box max-h-64">
                     {gratuityItems.map((item, index) => {
                       return (
                         <li key={`gitem-${index}`}>
