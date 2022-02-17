@@ -1,10 +1,12 @@
 module.exports = {
+  singleQuote: true,
+  tabWidth: 2,
+  printWidth: 120,
   overrides: [
     {
-      files: "*.sol",
+      files: '*.sol',
       options: {
         tabWidth: 2,
-        printWidth: 120,
       },
     },
   ],

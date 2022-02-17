@@ -1,20 +1,23 @@
-import React, { useState } from "react";
-import "../styles/globals.css";
-import { providers } from "ethers";
-import { Provider, defaultChains, defaultL2Chains } from "wagmi";
-import { InjectedConnector } from "wagmi/connectors/injected";
-import useLocalStorage from "../lib/useLocalStorage";
-import { ThemeProvider } from "next-themes";
-import Header from "../components/Header";
+import React, { useState } from 'react';
+import '../styles/globals.css';
+import { providers } from 'ethers';
+import { Provider, defaultChains, defaultL2Chains } from 'wagmi';
+import { InjectedConnector } from 'wagmi/connectors/injected';
+import useLocalStorage from '../lib/useLocalStorage';
+import { ThemeProvider } from 'next-themes';
+import Header from '../components/Header';
 
-// Constants
-const TWITTER_HANDLE = "lsbyerley";
+const TWITTER_HANDLE = 'lsbyerley';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID;
-const chains = [...defaultChains, ...defaultL2Chains];
+const allChains = [...defaultChains, ...defaultL2Chains];
+// Supporting chains right now are mainnet and rinkeby
+const supportedChainIds = [1, 4];
+const chains = allChains.filter((c) => supportedChainIds.includes(c.id));
 
 // Set up connectors
 const connectors = ({ chainId }) => {
+  console.log('LOG: connectors', chainId);
   return [
     new InjectedConnector({
       chains,
@@ -24,10 +27,9 @@ const connectors = ({ chainId }) => {
 
 function MyApp({ Component, pageProps }) {
   const { getItem, setItem } = useLocalStorage();
-  const [autoconnectEnabled, setAutoconnectEnabled] = useState(
-    getItem("autoconnectEnabled", "local") === "true"
-  );
+  const [autoconnectEnabled, setAutoconnectEnabled] = useState(getItem('autoconnectEnabled', 'local') === 'true');
   const provider = ({ chainId }) => {
+    console.log('LOG: provider', chainId, alchemyId);
     return new providers.AlchemyProvider(chainId, alchemyId);
   };
 
@@ -41,11 +43,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ThemeProvider>
-      <Provider
-        autoConnect={autoconnectEnabled}
-        connectors={connectors}
-        provider={provider}
-      >
+      <Provider autoConnect={autoconnectEnabled} connectors={connectors} provider={provider}>
         <Header />
         <Component {...props} />
         <footer className="flex items-center justify-center w-full h-24 border-t bg-neutral">
