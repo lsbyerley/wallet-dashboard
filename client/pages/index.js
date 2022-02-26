@@ -35,10 +35,11 @@ const contractAddressConfig = (chainId) => {
   return config[chainId] || false;
 };
 
+// TODO: enable mumbai contract support
 const RINKEBY_CONTRACT = '0x5321312F9aE04ea5f097D8F304004facf67Fa422';
 const POLYGON_MUMBAI_CONTRACT = '0x57c4383863eb8f7716F842e8D4208B9C7cfb3608';
 // chainIds the contract is deployed
-const contractChainIds = [4, 80001];
+const contractChainIds = [4 /* 80001 */];
 // chainIds the nft opensea api supports
 const nftChainIds = [1, 4];
 
