@@ -1,31 +1,27 @@
-const hre = require("hardhat");
-const { ethers } = require("hardhat");
+const hre = require('hardhat');
+const { ethers } = require('hardhat');
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
   // line interface.
-  const Gratuity = await hre.ethers.getContractFactory("Gratuity");
+  const Gratuity = await hre.ethers.getContractFactory('Gratuity');
   const gratuity = await Gratuity.deploy();
 
   await gratuity.deployed();
 
-  console.log("GratuityContract deployed to:", gratuity.address);
+  console.log('GratuityContract deployed to:', gratuity.address);
 
-  let txn = await gratuity.deposit(
-    ethers.utils.parseUnits(".0000000000001", "ether")
-  );
+  let txn = await gratuity.deposit('test deposit', { value: ethers.utils.parseEther('0.001', 'ether') });
   await txn.wait();
 
-  let txntwo = await gratuity.deposit(
-    ethers.utils.parseUnits(".000000005", "ether")
-  );
+  let txntwo = await gratuity.deposit('test deposit 2', { value: ethers.utils.parseEther('0.002', 'ether') });
   await txntwo.wait();
 
   const gratuityItems = await gratuity.getAllGratuityItems();
   const totalGratuity = await gratuity.getTotalGratuity();
 
-  console.log("LOG: check gratuityItems", gratuityItems);
-  console.log("LOG: check totalGratuity", totalGratuity);
+  console.log('LOG: check gratuityItems', gratuityItems);
+  console.log('LOG: check totalGratuity', totalGratuity);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

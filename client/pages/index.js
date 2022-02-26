@@ -25,18 +25,18 @@ const contractAddressConfig = (chainId) => {
   const config = {
     4: {
       name: 'rinkeby',
-      address: '0x7CD8aB958f028b72D55562149BED08967E29A118',
+      address: '0x5321312F9aE04ea5f097D8F304004facf67Fa422',
     },
     80001: {
       name: 'polygon-mumbai',
-      address: '0x30d2D684f3Ec6eA6FA00f4BCDF33460e46a1F9eB',
+      address: '0x57c4383863eb8f7716F842e8D4208B9C7cfb3608',
     },
   };
   return config[chainId] || false;
 };
 
-const RINKEBY_CONTRACT = '0x7CD8aB958f028b72D55562149BED08967E29A118';
-const POLYGON_MUMBAI_CONTRACT = '0x30d2D684f3Ec6eA6FA00f4BCDF33460e46a1F9eB';
+const RINKEBY_CONTRACT = '0x5321312F9aE04ea5f097D8F304004facf67Fa422';
+const POLYGON_MUMBAI_CONTRACT = '0x57c4383863eb8f7716F842e8D4208B9C7cfb3608';
 // chainIds the contract is deployed
 const contractChainIds = [4, 80001];
 // chainIds the nft opensea api supports
@@ -99,7 +99,7 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
   // console.log("LOG: connectData", connectData);
   // console.log("LOG: balanceData", balanceData);
   // console.log("LOG: feeData", feeData);
-  // console.log("LOG: contract", contract);
+  // console.log('LOG: contract', contract);
 
   useEffect(() => {
     if (accountAddress && nftChainIds.includes(chainId)) {
@@ -182,10 +182,10 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
       const { gratuityAmount, message } = formInput;
       if (!gratuityAmount || !message) return;
 
-      const amount = ethers.utils.parseUnits(gratuityAmount, 'ether');
-      console.log('LOG: deposit', amount, message);
+      const amount = ethers.utils.parseEther(gratuityAmount);
+      console.log('LOG: deposit', message, amount);
 
-      let transaction = await contract.deposit(amount, message);
+      let transaction = await contract.deposit(message, { value: amount });
       let txn = await transaction.wait();
       console.log('LOG: deposit complete!', txn);
       setDepositLoading(false);
