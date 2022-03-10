@@ -96,10 +96,10 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
   // console.log("LOG: provider", provider);
   // console.log('LOG: signerData', signerData);
   // console.log("LOG: accountData", accountData);
-  // console.log("LOG: networkData", networkData);
+  // console.log('LOG: networkData', networkData);
   // console.log("LOG: connectData", connectData);
   // console.log("LOG: balanceData", balanceData);
-  // console.log("LOG: feeData", feeData);
+  // console.log('LOG: feeData', feeData);
   // console.log('LOG: contract', contract);
 
   useEffect(() => {
@@ -267,7 +267,7 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
             <div className="overflow-visible shadow-lg card compact bg-base-100 ">
               <div className="flex-row items-center space-x-4 card-body">
                 <div className="flex-1">
-                  <h2 className="card-title">{networkData.chain?.name ?? networkData.chain?.id}</h2>
+                  <h2 className="card-title">{chainName ?? chainId}</h2>
                   <p className="text-base-content text-opacity-40">
                     Network {networkData.chain?.unsupported && '(unsupported)'}
                   </p>
@@ -314,6 +314,7 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
                   style={{
                     background: 'linear-gradient(#135,#fbc,#135)',
                   }}
+                  className="w-full"
                 >
                   <filter id="filter">
                     <feTurbulence type="fractalNoise" baseFrequency=".005 0" numOctaves="5" />
@@ -478,10 +479,10 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
             <div className="shadow-lg card compact bg-base-100">
               <div className="flex-row items-center space-x-4 card-body">
                 <div className="flex-1">
-                  {feeData && (
+                  {chainId && feeData && (
                     <h2 className="text-blue-300 card-title">
                       {feeData?.formatted.gasPrice}
-                      <span className="ml-4">{'gwei'}</span>
+                      <span className="">{'gwei'}</span>
                     </h2>
                   )}
                   <p className="text-base-content text-opacity-40">Estimated Gas Fee</p>
