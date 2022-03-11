@@ -21,25 +21,30 @@ import GratuityJSON from '../lib/abis/Gratuity.json';
 import NFTCard from '../components/NFTCard';
 
 // TODO: use updated contract config
+// TODO: enable multiple contract support
+const RINKEBY_CONTRACT = '0x5321312F9aE04ea5f097D8F304004facf67Fa422';
+const GOERLI_CONTRACT = '0x30d2D684f3Ec6eA6FA00f4BCDF33460e46a1F9eB';
+const POLYGON_MUMBAI_CONTRACT = '0x57c4383863eb8f7716F842e8D4208B9C7cfb3608';
 const contractAddressConfig = (chainId) => {
   const config = {
     4: {
       name: 'rinkeby',
-      address: '0x5321312F9aE04ea5f097D8F304004facf67Fa422',
+      address: RINKEBY_CONTRACT,
+    },
+    5: {
+      name: 'goerli',
+      address: GOERLI_CONTRACT,
     },
     80001: {
       name: 'polygon-mumbai',
-      address: '0x57c4383863eb8f7716F842e8D4208B9C7cfb3608',
+      address: POLYGON_MUMBAI_CONTRACT,
     },
   };
   return config[chainId] || false;
 };
 
-// TODO: enable mumbai contract support
-const RINKEBY_CONTRACT = '0x5321312F9aE04ea5f097D8F304004facf67Fa422';
-const POLYGON_MUMBAI_CONTRACT = '0x57c4383863eb8f7716F842e8D4208B9C7cfb3608';
 // chainIds the contract is deployed
-const contractChainIds = [4 /* 80001 */];
+const contractChainIds = [4 /* 5, 80001 */];
 // chainIds the nft opensea api supports
 const nftChainIds = [1, 4];
 
@@ -60,6 +65,7 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
     addressOrName: accountData?.address,
   });
   const contract = useContract({
+    // TODO: enable multiple contract support
     addressOrName: RINKEBY_CONTRACT,
     contractInterface: GratuityJSON.abi,
     signerOrProvider: signerData,
@@ -95,16 +101,16 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
 
   // console.log("LOG: provider", provider);
   // console.log('LOG: signerData', signerData);
-  // console.log("LOG: accountData", accountData);
+  // console.log('LOG: accountData', accountData);
   // console.log('LOG: networkData', networkData);
   // console.log("LOG: connectData", connectData);
-  // console.log("LOG: balanceData", balanceData);
+  // console.log('LOG: balanceData', balanceData);
   // console.log('LOG: feeData', feeData);
   // console.log('LOG: contract', contract);
 
   useEffect(() => {
     if (accountAddress && nftChainIds.includes(chainId)) {
-      // fetchNfts(chainId);
+      fetchNfts(chainId);
     }
   }, [accountAddress]);
 
@@ -134,7 +140,6 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
 
   useEffect(() => {
     if (isConnected && signerData && contractChainIds.includes(chainId)) {
-      console.log('LOG: contract fetch');
       fetchGratuityData();
     } else {
       console.log('LOG: contract not on this chain or not connected');
@@ -166,9 +171,10 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
   };
 
   const onChangeNetwork = async (c) => {
-    const newNetwork = await switchNetwork(c.id);
+    await switchNetwork(c.id);
     setNfts([]);
-    if (nftChainIds.includes(chainId)) await fetchNfts(newNetwork?.data?.id);
+    setNftsError();
+    if (nftChainIds.includes(c.id)) await fetchNfts(c.id);
     await getFeeData();
   };
 
@@ -259,7 +265,7 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
                   </div>
                 </div>
                 <div>
-                  <h2 className="card-title">{accountData?.ens?.name || 'n/a'}</h2>
+                  <h2 className="card-title">{accountData?.ens?.name || 'no ens set'}</h2>
                   <p className="text-base-content text-opacity-40">ENS Domain</p>
                 </div>
               </div>
@@ -274,7 +280,12 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
                 </div>
                 <div className="flex-0">
                   <Menu as="div" className="dropdown">
-                    <Menu.Button tabIndex="0" className="m-1 btn btn-sm btn-outline" disabled={!connectData.connected}>
+                    <Menu.Button
+                      tabIndex="0"
+                      as="label"
+                      className="m-1 btn btn-sm btn-outline"
+                      disabled={!connectData.connected}
+                    >
                       Switch Network
                     </Menu.Button>
                     <Transition
@@ -289,7 +300,7 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
                       <Menu.Items
                         as="ul"
                         tabIndex="0"
-                        className="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52"
+                        className="p-2 shadow dropdown-content menu bg-base-100 rounded-box w-52"
                       >
                         {switchNetwork &&
                           chains &&
@@ -297,7 +308,7 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
                           chains.map((c) => {
                             return (
                               <Menu.Item key={c.id} as="li" onClick={() => onChangeNetwork(c)}>
-                                {({ active }) => <a className={`${active && 'bg-blue-500'}`}>{c.name}</a>}
+                                {({ active }) => <a className={`${active && 'bg-base-300'}`}>{c.name}</a>}
                               </Menu.Item>
                             );
                           })}
@@ -359,7 +370,8 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
                 <div className="flex-1">
                   {accountData && balanceData && (
                     <h2 className="text-blue-300 card-title">
-                      {balanceData?.formatted} {networkData?.chain.nativeCurrency.symbol || balanceData?.symbol}
+                      {Number(ethers.utils.formatUnits(balanceData.value, balanceData.decimals)).toFixed(8)}{' '}
+                      {networkData?.chain.nativeCurrency.symbol || balanceData?.symbol}
                     </h2>
                   )}
                   <p className="text-base-content text-opacity-40">Balance</p>
@@ -565,14 +577,14 @@ const Home = ({ chains, autoconnectEnabled, setAutoconnectEnabled, setItem }) =>
                     </div>
                   </div>
                 )}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 max-h-[550px] overflow-scroll">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 sm:max-h-[550px] overflow-scroll">
                   {!nftsLoading &&
                     nfts.length > 0 &&
                     nfts.map((nft) => {
                       return <NFTCard data={nft} key={`${nft.id}-${nft.token_id}`} />;
                     })}
                 </div>
-                <div className="mt-4 alert alert-info">
+                <div className="mt-4 alert">
                   <div className="flex-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

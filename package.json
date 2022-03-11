@@ -4,6 +4,7 @@
     "runContract": "npx hardhat run scripts/run.js",
     "deployLocal": "npx hardhat run scripts/deploy.js --network localhost",
     "deployRinkeby": "npx hardhat run scripts/deploy.js --network rinkeby",
+    "deployGoerli": "npx hardhat run scripts/deploy.js --network goerli",
     "deployMumbai": "npx hardhat run scripts/deploy.js --network mumbai",
     "pkg:update:check": "ncu",
     "pkg:update:install": "ncu -u; npm install",

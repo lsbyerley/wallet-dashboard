@@ -12,12 +12,11 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 const allChains = [...defaultChains, ...defaultL2Chains];
 // Supporting chains right now are mainnet and rinkeby
-const supportedChainIds = [1, 4];
+const supportedChainIds = [1, 4, 5];
 const chains = allChains.filter((c) => supportedChainIds.includes(c.id));
 
 // Set up connectors
 const connectors = ({ chainId }) => {
-  console.log('LOG: connectors', chainId);
   return [
     new InjectedConnector({
       chains,
@@ -29,7 +28,6 @@ function MyApp({ Component, pageProps }) {
   const { getItem, setItem } = useLocalStorage();
   const [autoconnectEnabled, setAutoconnectEnabled] = useState(getItem('autoconnectEnabled', 'local') === 'true');
   const provider = ({ chainId }) => {
-    console.log('LOG: provider', chainId, alchemyId);
     return new providers.AlchemyProvider(chainId, alchemyId);
   };
 

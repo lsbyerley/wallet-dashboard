@@ -18,6 +18,7 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 
 const walletKey = process.env.WALLET_KEY;
 const rinkebyUrl = process.env.RINKEBY_API_URL;
+const goerliUrl = process.env.GOERLI_API_URL;
 
 module.exports = {
   defaultNetwork: 'hardhat',
@@ -33,12 +34,13 @@ module.exports = {
   networks: {
     hardhat: {
       chainId: 1337,
-      accounts: {
-        accountBalance: '500.0',
-      },
     },
     rinkeby: {
       url: rinkebyUrl,
+      accounts: [walletKey],
+    },
+    goerli: {
+      url: goerliUrl,
       accounts: [walletKey],
     },
     mumbai: {
@@ -50,20 +52,4 @@ module.exports = {
       accounts: [walletKey],
     },
   },
-  /* zksolc: {
-    version: '0.1.0',
-    compilerSource: 'docker',
-    settings: {
-      optimizer: {
-        enabled: true,
-      },
-      experimental: {
-        dockerImage: 'matterlabs/zksolc',
-      },
-    },
-  },
-  zkSyncDeploy: {
-    zkSyncNetwork: 'https://zksync2-testnet.zksync.dev',
-    ethNetwork: 'goerli',
-  }, */
 };
