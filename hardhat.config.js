@@ -19,6 +19,7 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 const walletKey = process.env.WALLET_KEY;
 const rinkebyUrl = process.env.RINKEBY_API_URL;
 const goerliUrl = process.env.GOERLI_API_URL;
+const arbitrumOneUrl = process.env.ARBITRUM_ONE_URL;
 
 module.exports = {
   defaultNetwork: 'hardhat',
@@ -49,6 +50,15 @@ module.exports = {
     },
     matic: {
       url: 'https://rpc-mainnet.maticvigil.com',
+      accounts: [walletKey],
+    },
+    arbitrumRinkeby: {
+      url: 'https://rinkeby.arbitrum.io/rpc',
+      accounts: [walletKey],
+    },
+    arbitrumOne: {
+      url: arbitrumOneUrl,
+      chainId: 42161,
       accounts: [walletKey],
     },
   },

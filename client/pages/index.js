@@ -25,6 +25,7 @@ import NFTCard from '../components/NFTCard';
 const RINKEBY_CONTRACT = '0x5321312F9aE04ea5f097D8F304004facf67Fa422';
 const GOERLI_CONTRACT = '0x30d2D684f3Ec6eA6FA00f4BCDF33460e46a1F9eB';
 const POLYGON_MUMBAI_CONTRACT = '0x57c4383863eb8f7716F842e8D4208B9C7cfb3608';
+const ARBITRUM_ONE_CONTRACT = '0xfa51c2b728a3b7e076ce415f69180efb8ebac67b';
 const contractAddressConfig = (chainId) => {
   const config = {
     4: {
