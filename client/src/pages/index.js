@@ -466,7 +466,7 @@ const Home = ({ autoConnectEnabled = false, setAutoConnectEnabled = () => {}, se
 						<div className="col-span-1 row-span-3 shadow-lg xl:col-span-3 card compact bg-base-100">
 							<div className="card-body">
 								<h2 className="my-4 text-4xl font-bold card-title">
-									Owned NFT's
+									Owned NFTs
 									<div className="ml-4 badge badge-outline badge-lg">{nfts.length}</div>
 								</h2>
 								<div className="mt-4 mb-4 alert">
@@ -485,7 +485,7 @@ const Home = ({ autoConnectEnabled = false, setAutoConnectEnabled = () => {}, se
 											></path>
 										</svg>
 										<label>
-											The NFT's shown here are only fetched for ETH Mainnnet and Rinkeby Testnet
+											The NFTs shown here are only fetched for ETH Mainnnet and Rinkeby Testnet
 										</label>
 									</div>
 								</div>
@@ -530,7 +530,7 @@ const Home = ({ autoConnectEnabled = false, setAutoConnectEnabled = () => {}, se
 													d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 												></path>
 											</svg>
-											<label>Connect wallet to see NFT's</label>
+											<label>Connect wallet to see NFTs</label>
 										</div>
 									</div>
 								)}
@@ -550,7 +550,7 @@ const Home = ({ autoConnectEnabled = false, setAutoConnectEnabled = () => {}, se
 													d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 												></path>
 											</svg>
-											<label>No NFT's associated with this wallet yet! Go buy some!</label>
+											<label>No NFTs associated with this wallet yet! Go buy some!</label>
 										</div>
 									</div>
 								)}

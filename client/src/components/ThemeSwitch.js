@@ -11,6 +11,7 @@ const ThemeSwitch = () => {
 	return (
 		<button
 			role="switch"
+			aria-checked={theme === 'dark' || resolvedTheme === 'dark' ? true : false}
 			aria-label="Toggle Dark Mode"
 			type="button"
 			className="btn btn-square btn-ghost"
